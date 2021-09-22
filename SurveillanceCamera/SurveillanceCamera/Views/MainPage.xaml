@@ -3,17 +3,10 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             xmlns:local="clr-namespace:SurveillanceCamera.ViewModels"
             x:Class="SurveillanceCamera.MainPage"
-            Title="Cameras"
-            CurrentPageChanged="MainPage_OnCurrentPageChanged">
-    <TabbedPage.BindingContext>
-        <local:MasterViewModel/>
-    </TabbedPage.BindingContext>
-    <ContentPage Title="Инфо">
-        <ContentPage.BindingContext>
-            <local:ChannelInfoListViewModel/>   
-        </ContentPage.BindingContext>
-        <ContentPage.Resources>
-            <ResourceDictionary>
+            Title="Cameras">
+<TabbedPage.BindingContext><local:MasterViewModel/></TabbedPage.BindingContext>
+    <TabbedPage.Resources>
+         <ResourceDictionary>
             <Style x:Key="NameLabel" TargetType="Label">
                 <Setter Property="FontSize" Value="18" />
                 <Setter Property="FontAttributes" Value="Bold" />
@@ -73,11 +66,11 @@
                 <Setter Property="Spacing" Value="8" />
             </Style>
         </ResourceDictionary>
-        </ContentPage.Resources>
-        
-        <ContentPage.Content>
+    </TabbedPage.Resources>
+<ContentPage x:Name="viewModel" Title="Инфо" BindingContext="{Binding ChannelInfoListViewModel}">
+       <ContentPage.Content>
             <CollectionView ItemsSource="{Binding ChannelList}" 
-                            SelectionMode="Multiple" SelectedItems="{Binding SelectedChannels}">
+                            SelectionMode="Multiple"  SelectedItems="{Binding SelectedChannels, Mode=TwoWay}" SelectionChanged="SelectableItemsView_OnSelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
@@ -111,21 +104,23 @@
         
     </ContentPage>
     
-    <ContentPage Title="Камеры">
-       <ContentPage.Content>
-            <CollectionView ItemsSource="{Binding ChannelList}" 
-                            SelectionMode="Multiple" SelectedItems="{Binding SelectedChannels}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
-                            <Frame Style="{StaticResource FrameCardViewStyle}">
-                                <Image></Image>
-                            </Frame>
-                        </StackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+<ContentPage Title="Камеры" BindingContext="{Binding StreamViewModel}">
+   <ContentPage.Content>
+        <CollectionView ItemsSource="{Binding StreamList}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout>
+                        <Frame Style="{StaticResource FrameCardViewStyle}">
+                            <Label Text="{Binding Id}"></Label>
+                        </Frame>
+                        <Frame Style="{StaticResource FrameCardViewStyle}">
+                            <Image Source="{Binding Image}"></Image>
+                        </Frame>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-        </ContentPage.Content>
-    </ContentPage>
+    </ContentPage.Content>
+</ContentPage>
 </TabbedPage>

@@ -1,4 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 using SurveillanceCamera.Models;
 using SurveillanceCamera.Services;
@@ -9,20 +13,24 @@ namespace SurveillanceCamera.ViewModels
 {
     public class ChannelInfoListViewModel : BaseViewModel
     {
+        
+        public delegate void Handler(ObservableCollection<object> channels, NotifyCollectionChangedEventArgs args);
+        public event Handler SelectionChanged;
+        
+        
         private ObservableCollection<ChannelInfo> _channelList;
-        private ObservableCollection<ChannelInfo> _selectedChannels;
+        private ObservableCollection<object> _selectedChannels = new ObservableCollection<object>();
 
-        public ObservableCollection<ChannelInfo> SelectedChannels
+
+        public ObservableCollection<object> SelectedChannels
         {
             get => _selectedChannels;
             set
             {
-                if (!Equals(_selectedChannels, value))
-                {
-                    _selectedChannels = value;
-                }
-            }
+                _selectedChannels = value;
+            } 
         }
+
         public ObservableCollection<ChannelInfo> ChannelList
         {
             get => _channelList;
@@ -36,6 +44,13 @@ namespace SurveillanceCamera.ViewModels
         public ChannelInfoListViewModel()
         {
             LoadChannelInfoList();
+
+            SelectedChannels.CollectionChanged += (sender, args) =>
+            {
+                Console.WriteLine();
+                SelectionChanged?.Invoke((ObservableCollection<object>)sender, args);
+            };
+
         }
 
         private void LoadChannelInfoList()
@@ -46,5 +61,6 @@ namespace SurveillanceCamera.ViewModels
                 ChannelList = new CustomSerializationService().Deserialize(xmlResult);
             });
         }
+        
     }
 }
