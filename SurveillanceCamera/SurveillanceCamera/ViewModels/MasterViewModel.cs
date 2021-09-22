@@ -7,8 +7,9 @@
 
         public MasterViewModel()
         {
-            ChannelInfoListViewModel = new();
-            StreamViewModel = new();
+            ChannelInfoListViewModel = new ChannelInfoListViewModel();
+            StreamViewModel = new StreamViewModel();
+            ChannelInfoListViewModel.SelectionChanged += StreamViewModel.SelectedChannelEventHandler;
         }
         
         

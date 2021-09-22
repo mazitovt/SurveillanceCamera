@@ -5,6 +5,7 @@ using Xamarin.Forms.PlatformConfiguration.AndroidSpecific;
 using Xamarin.Forms;
 using SurveillanceCamera.Services;
 using SurveillanceCamera.ViewModels;
+using Xamarin.Essentials;
 using TabbedPage = Xamarin.Forms.TabbedPage;
 
 namespace SurveillanceCamera
@@ -18,19 +19,11 @@ namespace SurveillanceCamera
 
             On<Android>().SetToolbarPlacement(ToolbarPlacement.Bottom);
 
-
-            var masterViewModel = new MasterViewModel();
-            
-            
+            var view = new CollectionView();
             
             
         }
         
-        private void SelectableItemsView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            return;
-        }
-
         private void MainPage_OnCurrentPageChanged(object sender, EventArgs e)
         {
             return;
@@ -65,6 +58,12 @@ namespace SurveillanceCamera
             new SnapshotSaver(appSettings.Width, appSettings.Height).SaveFrame(streamUrl, destination);
             
             SetSnapshots();
+        }
+
+
+        private void SelectableItemsView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var g = viewModel.GetValue(ContentPage.BindingContextProperty);
         }
     }
 }

@@ -18,12 +18,6 @@ namespace SurveillanceCamera.Services
         private static UriBuilder uriBuilder = new UriBuilder(AppSettingsLoader.AppSettings.Stream);
         // private string _streamUrl;
         
-        private static HttpClient GetClient()
-        {
-            var client = new HttpClient();
-            return client;
-        }
-
         public static string GetStreamUrl(string newId)
         {
             var qs = HttpUtility.ParseQueryString(uriBuilder.Query); 
