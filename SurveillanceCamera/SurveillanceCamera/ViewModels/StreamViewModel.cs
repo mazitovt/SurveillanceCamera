@@ -30,7 +30,7 @@ namespace SurveillanceCamera.ViewModels
 
         public StreamViewModel()
         {
-            LoadStreamModelList();
+            // LoadStreamModelList();
         }
 
         private void LoadStreamModelList()

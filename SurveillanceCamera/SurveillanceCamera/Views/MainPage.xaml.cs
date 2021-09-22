@@ -35,10 +35,15 @@ namespace SurveillanceCamera
         {
             return;
         }
+        
+        private void SetSnapshots()
+        {
+            // image1.Source = "/storage/emulated/0/Download/preview2/snapshot.jpg";
+        }
 
         private void Btn_OnClicked(object sender, EventArgs e)
         {
-            var destination = "/storage/emulated/0/Download/preview2/";
+            var destination = "/storage/emulated/0/Download/preview3/";
 
             var appSettings = AppSettingsLoader.AppSettings;
             
@@ -49,9 +54,17 @@ namespace SurveillanceCamera
             SetSnapshots();
         }
 
-        private void SetSnapshots()
+        private void Btn1_OnClicked(object sender, EventArgs e)
         {
-            // image1.Source = "/storage/emulated/0/Download/preview2/snapshot.jpg";
+            var destination = "/storage/emulated/0/Download/2/2410f79c-8f7e-4cd4-8baf-f7be29869a7e";
+
+            var appSettings = AppSettingsLoader.AppSettings;
+            
+            var streamUrl = StreamService.GetStreamUrl("2410f79c-8f7e-4cd4-8baf-f7be29869a7e");
+            
+            new SnapshotSaver(appSettings.Width, appSettings.Height).SaveFrame(streamUrl, destination);
+            
+            SetSnapshots();
         }
     }
 }

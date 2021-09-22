@@ -112,20 +112,8 @@
     </ContentPage>
     
     <ContentPage Title="Камеры">
-       <ContentPage.Content>
-            <CollectionView ItemsSource="{Binding ChannelList}" 
-                            SelectionMode="Multiple" SelectedItems="{Binding SelectedChannels}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
-                            <Frame Style="{StaticResource FrameCardViewStyle}">
-                                <Image></Image>
-                            </Frame>
-                        </StackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
 
-        </ContentPage.Content>
+        <Button x:Name="btn1" Clicked="Btn1_OnClicked" Text="click"></Button>
+
     </ContentPage>
 </TabbedPage>
