@@ -26,28 +26,13 @@ namespace SurveillanceCamera.ViewModels
             }
         }
 
-        public StreamViewModel()
-        {
-           StreamList = new( new []
-           {
-               new StreamModel() {Id = "1", Image = GetImage("/storage/emulated/0/Download/preview2/snapshot.jpg")},
-               new StreamModel() {Id = "2", Image = GetImage("/storage/emulated/0/Download/preview2/snapshot.jpg")},
-               new StreamModel() {Id = "3", Image = GetImage("/storage/emulated/0/Download/preview2/snapshot.jpg")}
-           });
-        }
-
-        private Xamarin.Forms.ImageSource GetImage(string path)
-        {
-            return ImageSource.FromFile(path);
-        }
         private void LoadStreamModelList(string id)
         {
-            
             var destination = $"/storage/emulated/0/Download/res/{id}/";
 
             var appSettings = AppSettingsLoader.AppSettings;
         
-            var streamUrl = StreamService.GetStreamUrl(id);
+            var streamUrl = CamerasService.GetStreamUrl(id);
         
             new SnapshotSaver(appSettings.Width, appSettings.Height).SaveFrame(streamUrl, destination);
             
@@ -67,8 +52,8 @@ namespace SurveillanceCamera.ViewModels
             
             foreach (var channelInfo in channels)
             {
-
                 var path = $"/storage/emulated/0/Download/res/{channelInfo.Id}/snapshot.jpg";
+                
                 while (!File.Exists(path))
                 {
                     Console.WriteLine("DOESNT EXIST");

@@ -19,17 +19,9 @@ namespace SurveillanceCamera.ViewModels
         
         
         private ObservableCollection<ChannelInfo> _channelList;
-        private ObservableCollection<object> _selectedChannels = new ObservableCollection<object>();
 
 
-        public ObservableCollection<object> SelectedChannels
-        {
-            get => _selectedChannels;
-            set
-            {
-                _selectedChannels = value;
-            } 
-        }
+        public ObservableCollection<object> SelectedChannels { get; set; } = new ObservableCollection<object>();
 
         public ObservableCollection<ChannelInfo> ChannelList
         {
@@ -47,7 +39,6 @@ namespace SurveillanceCamera.ViewModels
 
             SelectedChannels.CollectionChanged += (sender, args) =>
             {
-                Console.WriteLine();
                 SelectionChanged?.Invoke((ObservableCollection<object>)sender, args);
             };
 

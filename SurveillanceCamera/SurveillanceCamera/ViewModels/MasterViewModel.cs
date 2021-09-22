@@ -11,7 +11,5 @@
             StreamViewModel = new StreamViewModel();
             ChannelInfoListViewModel.SelectionChanged += StreamViewModel.SelectedChannelEventHandler;
         }
-        
-        
     }
 }

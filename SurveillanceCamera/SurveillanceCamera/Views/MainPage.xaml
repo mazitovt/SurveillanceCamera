@@ -2,7 +2,7 @@
 <TabbedPage xmlns ="http://xamarin.com/schemas/2014/forms"
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             xmlns:local="clr-namespace:SurveillanceCamera.ViewModels"
-            x:Class="SurveillanceCamera.MainPage"
+            x:Class="SurveillanceCamera.Views.MainPage"
             Title="Cameras">
 <TabbedPage.BindingContext><local:MasterViewModel/></TabbedPage.BindingContext>
     <TabbedPage.Resources>
@@ -70,7 +70,7 @@
 <ContentPage x:Name="viewModel" Title="Инфо" BindingContext="{Binding ChannelInfoListViewModel}">
        <ContentPage.Content>
             <CollectionView ItemsSource="{Binding ChannelList}" 
-                            SelectionMode="Multiple"  SelectedItems="{Binding SelectedChannels, Mode=TwoWay}" SelectionChanged="SelectableItemsView_OnSelectionChanged">
+                            SelectionMode="Multiple"  SelectedItems="{Binding SelectedChannels, Mode=TwoWay}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
