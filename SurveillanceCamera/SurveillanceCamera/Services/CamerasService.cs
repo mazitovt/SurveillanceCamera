@@ -10,7 +10,7 @@ namespace SurveillanceCamera.Services
 
         public CamerasService()
         {
-            _channelsURL = AppSettingsService.AppSettings.Channels;
+            _channelsURL = AppSettingsLoader.AppSettings.Channels;
         }
 
         private HttpClient GetClient()

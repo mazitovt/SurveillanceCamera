@@ -5,7 +5,7 @@ using SurveillanceCamera.Models;
 
 namespace SurveillanceCamera.Services
 {
-    public class AppSettingsService
+    public static class AppSettingsLoader
     {
         private static AppSettings _appSettings;
 

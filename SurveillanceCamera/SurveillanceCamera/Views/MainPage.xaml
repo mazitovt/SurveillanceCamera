@@ -5,7 +5,9 @@
             x:Class="SurveillanceCamera.MainPage"
             Title="Cameras"
             CurrentPageChanged="MainPage_OnCurrentPageChanged">
-    
+    <TabbedPage.BindingContext>
+        <local:MasterViewModel/>
+    </TabbedPage.BindingContext>
     <ContentPage Title="Инфо">
         <ContentPage.BindingContext>
             <local:ChannelInfoListViewModel/>   
@@ -110,40 +112,19 @@
     </ContentPage>
     
     <ContentPage Title="Камеры">
-        <ContentPage.Content>
-            <StackLayout>
-                <Label Text="Test" HorizontalOptions="Center" VerticalOptions="Center" FontSize="Large"></Label>
-
-            <!-- <CollectionView ItemsSource="{Binding ChannelInfoList}" SelectionMode="Multiple" SelectionChanged="SelectableItemsView_OnSelectionChanged"> -->
-            <!--     <CollectionView.ItemTemplate> -->
-            <!--         <DataTemplate> -->
-            <!--             <StackLayout Spacing="8" HorizontalOptions="EndAndExpand"> -->
-            <!--                 <Frame Style="{StaticResource FrameCardViewStyle}"> -->
-            <!--                     <StackLayout Style="{StaticResource itemsCardViewStackLayoutStyle}"> -->
-            <!--                         <StackLayout Style="{StaticResource itemsInsideCardViewStackLayoutStyle}"> -->
-            <!--                             <Frame Style="{StaticResource profileImageFrameStyle}"> -->
-            <!--                                 <Image Style="{StaticResource profileImageStyle}" Source="{Binding PhotoUrl}" /> -->
-            <!--                             </Frame> -->
-            <!--                             <StackLayout Style="{StaticResource detailsStackLayout}"> -->
-            <!--                                 <Label Text="{Binding Name}" Style="{StaticResource NameLabel}" /> -->
-            <!--                                 <StackLayout Style="{StaticResource imageLableStackLayout}"> -->
-            <!--                                     <Label Text="{Binding Id}" Style="{StaticResource LabelStyle}" /> -->
-            <!--                                 </StackLayout> -->
-            <!--                                 <StackLayout Style="{StaticResource imageLableStackLayout}"> -->
-            <!--                                     <Label Text="{Binding IsDisabled}" Style="{StaticResource LabelStyle}" /> -->
-            <!--                                 </StackLayout> -->
-            <!--                                 <StackLayout Style="{StaticResource imageLableStackLayout}"> -->
-            <!--                                     <Label Text="{Binding RootDirName}" Style="{StaticResource LabelStyle}" /> -->
-            <!--                                 </StackLayout> -->
-            <!--                             </StackLayout> -->
-            <!--                         </StackLayout> -->
-            <!--                     </StackLayout> -->
-            <!--                 </Frame> -->
-            <!--             </StackLayout> -->
-            <!--         </DataTemplate> -->
-            <!--     </CollectionView.ItemTemplate> -->
-            <!-- </CollectionView> -->
-            </StackLayout>
+       <ContentPage.Content>
+            <CollectionView ItemsSource="{Binding ChannelList}" 
+                            SelectionMode="Multiple" SelectedItems="{Binding SelectedChannels}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
+                            <Frame Style="{StaticResource FrameCardViewStyle}">
+                                <Image></Image>
+                            </Frame>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
         </ContentPage.Content>
     </ContentPage>

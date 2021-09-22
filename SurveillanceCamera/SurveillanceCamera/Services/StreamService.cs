@@ -11,37 +11,25 @@ using System.Web;
 
 namespace SurveillanceCamera.Services
 {
-    public class StreamService
+    public static class StreamService
     {
 
-        private static string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        private static UriBuilder uriBuilder = new UriBuilder(AppSettingsService.AppSettings.Stream);
-        private string _streamUrl;
-
-        public StreamService(string channelId)
-        {
-            _streamUrl = CreateStreamUrl(channelId);
-        }
+        // private static string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        private static UriBuilder uriBuilder = new UriBuilder(AppSettingsLoader.AppSettings.Stream);
+        // private string _streamUrl;
         
-        private HttpClient GetClient()
+        private static HttpClient GetClient()
         {
             var client = new HttpClient();
             return client;
         }
 
-        public void GetStream()
-        {
-           
-        }
-
-        private string CreateStreamUrl(string newId)
+        public static string GetStreamUrl(string newId)
         {
             var qs = HttpUtility.ParseQueryString(uriBuilder.Query); 
             qs.Set("channelid",newId); 
             uriBuilder.Query = qs.ToString(); 
             return uriBuilder.Uri.ToString();
         }
-
-      
     }
 }
