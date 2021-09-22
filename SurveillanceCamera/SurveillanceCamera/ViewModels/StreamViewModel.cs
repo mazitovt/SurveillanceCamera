@@ -3,7 +3,6 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using SurveillanceCamera.Models;
 using SurveillanceCamera.Services;
@@ -43,16 +42,15 @@ namespace SurveillanceCamera.ViewModels
         }
         private void LoadStreamModelList(string id)
         {
-            Task.Run(async () =>
-            {
-                var destination = $"/storage/emulated/0/Download/preview2/{id}/";
+            
+            var destination = $"/storage/emulated/0/Download/res/{id}/";
 
-                var appSettings = AppSettingsLoader.AppSettings;
+            var appSettings = AppSettingsLoader.AppSettings;
+        
+            var streamUrl = StreamService.GetStreamUrl(id);
+        
+            new SnapshotSaver(appSettings.Width, appSettings.Height).SaveFrame(streamUrl, destination);
             
-                var streamUrl = StreamService.GetStreamUrl(id);
-            
-                new SnapshotSaver(640, 360).SaveFrame("http://demo.macroscop.com/mobile?channelid=2410f79c-8f7e-4cd4-8baf-f7be29869a7e&oneframeonly=false&login=root", "/storage/emulated/0/Download/preview2/1/");
-            });
         }
 
         public void SelectedChannelEventHandler(ObservableCollection<object> chan, NotifyCollectionChangedEventArgs args)
@@ -70,10 +68,10 @@ namespace SurveillanceCamera.ViewModels
             foreach (var channelInfo in channels)
             {
 
-                var path = $"/storage/emulated/0/Download/preview2/1/snapshot.jpg";
+                var path = $"/storage/emulated/0/Download/res/{channelInfo.Id}/snapshot.jpg";
                 while (!File.Exists(path))
                 {
-                    Console.WriteLine("DOESNT EXISTS");
+                    Console.WriteLine("DOESNT EXIST");
                     Task.Delay(100);
                 }
 
@@ -84,9 +82,6 @@ namespace SurveillanceCamera.ViewModels
                         Image = ImageSource.FromFile(path)
                     });
             }
-            // var streamModels=  channels1.Select( ch => new StreamModel{ Id = ch.Id, Image = ImageSource.FromFile("/storage/emulated/0/Download/preview2/snapshot.jpg")});
-
-            // StreamList = new ObservableCollection<StreamModel>(streamModels);
 
             StreamList = temp;
         }
