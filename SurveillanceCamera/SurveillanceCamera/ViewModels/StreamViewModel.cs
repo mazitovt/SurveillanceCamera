@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,12 +62,12 @@ namespace SurveillanceCamera.ViewModels
             var fileName = "snapshot";
             var filePath = Path.Combine(destination, $"{fileName}.jpg");
 
+            var snapshotSaver = new SnapshotSaver();
             var appSettings = AppSettingsLoader.AppSettings;
-            var snapshotSaver = new SnapshotSaver(appSettings.Width, appSettings.Height);
-            
             var streamUrl = CamerasService.GetStreamUrl(id);
 
-            await snapshotSaver.SaveFrame(streamUrl, destination, filePath);
+            await Task.Run( () =>
+                snapshotSaver.SaveFrame(appSettings.Width, appSettings.Height, streamUrl, destination, filePath));
             
             return filePath;
         }
@@ -81,7 +82,7 @@ namespace SurveillanceCamera.ViewModels
             };
         }
 
-        private async Task UpdateFrame(ChannelInfo channelInfo, ObservableCollection<StreamModel> updatedStreams)
+        private async Task UpdateFrame(ChannelInfo channelInfo, ConcurrentBag<StreamModel> updatedStreams)
         {
             var filePath = await SaveFrame(channelInfo.Id);
             Console.WriteLine("---------------------------------------------------");
@@ -94,9 +95,11 @@ namespace SurveillanceCamera.ViewModels
         {
             try
             {
-                var updatedStreams = new ObservableCollection<StreamModel>();
+                var bag = new ConcurrentBag<StreamModel>();
+                
+                // var updatedStreams = new ObservableCollection<StreamModel>();
 
-                var tasks = channels.Select(channel => UpdateFrame(channel, updatedStreams)).ToArray();
+                var tasks = channels.Select(channel => UpdateFrame(channel, bag)).ToArray();
                 
                 Console.WriteLine("=====================================");
             
@@ -104,7 +107,7 @@ namespace SurveillanceCamera.ViewModels
 
                 Console.WriteLine("+++++++++++++++++++++++++++++++++++++++++++");
 
-                StreamList = new ObservableCollection<StreamModel>(updatedStreams.OrderBy(stream => stream.Name));
+                StreamList = new ObservableCollection<StreamModel>(bag.OrderBy(stream => stream.Name));
             }
             catch (Exception ex)
             {

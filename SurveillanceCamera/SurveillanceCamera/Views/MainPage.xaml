@@ -63,6 +63,7 @@
             </Style>
 
             <Style x:Key="itemsInsideCardViewStackLayoutStyle" TargetType="StackLayout">
+                <Setter Property="Margin" Value="5" />
                 <Setter Property="Orientation" Value="Horizontal" />
                 <Setter Property="Spacing" Value="8" />
             </Style>
@@ -82,23 +83,33 @@
                     <DataTemplate>
                         <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
                             <Frame Style="{StaticResource FrameCardViewStyle}">
-                                <StackLayout Style="{StaticResource itemsCardViewStackLayoutStyle}">
-                                    <StackLayout Style="{StaticResource itemsInsideCardViewStackLayoutStyle}">
-                                        <Frame Style="{StaticResource profileImageFrameStyle}">
-                                            <Image Style="{StaticResource profileImageStyle}" Source="{Binding PhotoUrl}" />
-                                        </Frame>
-                                        <StackLayout Style="{StaticResource detailsStackLayout}">
-                                            <Label Text="{Binding Name}" Style="{StaticResource NameLabel}" />
-                                            <StackLayout Style="{StaticResource imageLableStackLayout}">
-                                                <Label Text="{Binding Id}" Style="{StaticResource LabelStyle}" />
-                                            </StackLayout>
-                                            <StackLayout Style="{StaticResource imageLableStackLayout}">
-                                                <Label Text="{Binding IsDisabled}" Style="{StaticResource LabelStyle}" />
-                                            </StackLayout>
-                                            <StackLayout Style="{StaticResource imageLableStackLayout}">
-                                                <Label Text="{Binding RootDirName}" Style="{StaticResource LabelStyle}" />
-                                            </StackLayout>
-                                        </StackLayout>
+                                <StackLayout Style="{StaticResource itemsInsideCardViewStackLayoutStyle}">
+                                    <StackLayout Style="{StaticResource detailsStackLayout}">
+                                        <Label Text="{Binding Name}" Style="{StaticResource NameLabel}" />
+                                        <Label Style="{StaticResource LabelStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Id: "/>
+                                                    <Span Text="{Binding Id}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Style="{StaticResource LabelStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Not working: "/>
+                                                    <Span Text="{Binding IsDisabled}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Style="{StaticResource LabelStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Root directory: "/>
+                                                    <Span Text="{Binding RootDirName}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
                                     </StackLayout>
                                 </StackLayout>
                             </Frame>
@@ -122,11 +133,9 @@
                                 <Grid.RowDefinitions>  
                                     <RowDefinition Height="220"/>  
                                     <RowDefinition Height="Auto"/>  
-                                    <RowDefinition Height="Auto"/>  
                                 </Grid.RowDefinitions> 
                                 <Image Grid.Row="0" Source="{Binding Image}" Aspect="AspectFit"/>  
-                                <Label Grid.Row="1" FontSize="Large" Text="{Binding Name}" TextColor="#14B7F8" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand"/>  
-                                <Label Grid.Row="2" Text="{Binding Id}" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand" FontAttributes="Bold"/>
+                                <Label Grid.Row="1" Text="{Binding Name}"  Style="{StaticResource NameLabel}"/>  
                             </Grid>  
                         </Frame>  
                         </StackLayout>  

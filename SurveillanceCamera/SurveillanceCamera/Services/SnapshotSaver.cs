@@ -10,7 +10,7 @@ using SkiaSharp;
 
 namespace SurveillanceCamera.Services{
 
-    public class SnapshotSaver
+    public class SnapshotSaver : ISnapshotSaver
     {
 
         private bool _isFrameSaved = false;
@@ -30,10 +30,10 @@ namespace SurveillanceCamera.Services{
             }
         }
 
-        private readonly uint _width;
-        private readonly uint _height;
+        private uint _width;
+        private uint _height;
 
-        private static readonly LibVLC _libvlc = new LibVLC();
+        private static LibVLC _libvlc = new LibVLC();
             
         /// <summary>
         /// RGBA is used, so 4 byte per pixel, or 32 bits.
@@ -44,16 +44,20 @@ namespace SurveillanceCamera.Services{
         /// the number of bytes per "line"
         /// For performance reasons inside the core of VLC, it must be aligned to multiples of 32.
         /// </summary>
-        private readonly uint _pitch;
+        private uint _pitch;
 
         /// <summary>
         /// The number of lines in the buffer.
         /// For performance reasons inside the core of VLC, it must be aligned to multiples of 32.
         /// </summary>
-        private readonly uint _lines;
+        private uint _lines;
 
-        
-        public SnapshotSaver(uint w, uint h)
+        private SKBitmap _currentBitmap;
+        private readonly ConcurrentQueue<SKBitmap> _filesToProcess = new ConcurrentQueue<SKBitmap>();
+        private long _frameCounter = 0;
+
+
+        private void Initialize(uint w, uint h)
         {
             _width = w;
             _height = h;
@@ -72,13 +76,10 @@ namespace SurveillanceCamera.Services{
                 return ((size / 32) + 1) * 32;// Align on the next multiple of 32
             }
         }
-
-        private SKBitmap _currentBitmap;
-        private readonly ConcurrentQueue<SKBitmap> _filesToProcess = new ConcurrentQueue<SKBitmap>();
-        private long _frameCounter = 0;
-        
-        public async Task SaveFrame(string url, string destination, string filePath)
+        public void SaveFrame(uint width, uint height, string url, string destination, string filePath)
         {
+            Initialize(width, height);
+            
             using var mediaPlayer = new MediaPlayer(_libvlc);
             _player = mediaPlayer;
                 
@@ -118,25 +119,19 @@ namespace SurveillanceCamera.Services{
             {
                 if (_filesToProcess.TryDequeue(out var bitmap))
                 {
-                    if (!IsFrameSaved)
+                    if (IsFrameSaved) continue;
+                    canvas.DrawBitmap(bitmap, 0, 0);
+                    using (var outputImage = surface.Snapshot())
+                    using (var data = outputImage.Encode(SKEncodedImageFormat.Jpeg, 50))
+                    using (var outputFile = File.Open(filePath, FileMode.Create))
                     {
-                        canvas.DrawBitmap(bitmap, 0, 0);
-                        using (var outputImage = surface.Snapshot())
-                        using (var data = outputImage.Encode(SKEncodedImageFormat.Jpeg, 50))
-                        using (var outputFile = File.Open(filePath, FileMode.Create))
-                        {
-                            number++;
-                            data.SaveTo(outputFile);
-                            Console.WriteLine($"----------------------------{number}SAVED {outputFile}");
-                            bitmap.Dispose(); 
-                            IsFrameSaved = true;
-                        }
+                        number++;
+                        data.SaveTo(outputFile);
+                        Console.WriteLine($"----------------------------{number}SAVED {outputFile}");
+                        bitmap.Dispose(); 
+                        IsFrameSaved = true;
                     }
                 }
-                // else
-                // {
-                //     await Task.Delay(TimeSpan.FromMilliseconds(1), token);
-                // }
             }
         }
 
