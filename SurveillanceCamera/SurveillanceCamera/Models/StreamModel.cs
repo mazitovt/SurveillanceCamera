@@ -2,9 +2,9 @@
 
 namespace SurveillanceCamera.Models
 {
-    public class StreamModel
+    public class StreamModel : ChannelInfo
     {
-        public string Id { get; set; }
         public ImageSource Image { get; set; }
+        
     }
 }

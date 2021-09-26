@@ -9,7 +9,13 @@
         {
             ChannelInfoListViewModel = new ChannelInfoListViewModel();
             StreamViewModel = new StreamViewModel();
-            ChannelInfoListViewModel.SelectionChanged += StreamViewModel.SelectedChannelEventHandler;
+
+            ChannelInfoListViewModel.SelectionChanged += StreamViewModel.HandleSelectedChannels;
+        }
+
+        public void CurrentPageChangedHandler()
+        {
+            ChannelInfoListViewModel.CheckSelectedChannels();
         }
     }
 }

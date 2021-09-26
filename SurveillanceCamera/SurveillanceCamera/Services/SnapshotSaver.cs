@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,15 +26,15 @@ namespace SurveillanceCamera.Services{
                 {
                     _isFrameSaved = true;
                     _player.Stop();
-                    
                 }
             }
         }
 
-        private uint _width;
-        private uint _height;
+        private readonly uint _width;
+        private readonly uint _height;
 
-        private LibVLC _libvlc;
+        private static readonly LibVLC _libvlc = new LibVLC();
+            
         /// <summary>
         /// RGBA is used, so 4 byte per pixel, or 32 bits.
         /// </summary>
@@ -45,24 +44,23 @@ namespace SurveillanceCamera.Services{
         /// the number of bytes per "line"
         /// For performance reasons inside the core of VLC, it must be aligned to multiples of 32.
         /// </summary>
-        private  readonly uint Pitch;
+        private readonly uint _pitch;
 
         /// <summary>
         /// The number of lines in the buffer.
         /// For performance reasons inside the core of VLC, it must be aligned to multiples of 32.
         /// </summary>
-        private  readonly uint Lines;
+        private readonly uint _lines;
 
+        
         public SnapshotSaver(uint w, uint h)
         {
-
             _width = w;
             _height = h;
             
-            Pitch = Align(_width * BytePerPixel);
-            Lines = Align(_height);
+            _pitch = Align(_width * BytePerPixel);
+            _lines = Align(_height);
 
-            _libvlc = new LibVLC();
             
             uint Align(uint size)
             {
@@ -75,112 +73,93 @@ namespace SurveillanceCamera.Services{
             }
         }
 
-        private  SKBitmap CurrentBitmap;
-        private  readonly ConcurrentQueue<SKBitmap> FilesToProcess = new ConcurrentQueue<SKBitmap>();
-        private  long FrameCounter = 0;
+        private SKBitmap _currentBitmap;
+        private readonly ConcurrentQueue<SKBitmap> _filesToProcess = new ConcurrentQueue<SKBitmap>();
+        private long _frameCounter = 0;
         
-        public async Task SaveFrame(string url, string destination)
+        public async Task SaveFrame(string url, string destination, string filePath)
         {
-            // Extract thumbnails in the "preview" folder next to the app
-            // var currentDirectory = "/storage/emulated/0/Download/";
-            // var destination = Path.Combine(currentDirectory, "preview1");
-            Directory.CreateDirectory(destination);
+            using var mediaPlayer = new MediaPlayer(_libvlc);
+            _player = mediaPlayer;
+                
+            // Listen to events
+            var processingCancellationTokenSource = new CancellationTokenSource();
+            mediaPlayer.Stopped += (s, e) => processingCancellationTokenSource.CancelAfter(1);
 
-            // Load native libvlc library
-            Core.Initialize();
+            // Create new media
+            var media = new Media(_libvlc, new Uri(url));
 
-            
-            using (var mediaPlayer = new MediaPlayer(_libvlc))
+            media.AddOption(":no-audio");
+            // Set the size and format of the video here.
+            mediaPlayer.SetVideoFormat("RV32", _width, _height, _pitch);
+            mediaPlayer.SetVideoCallbacks(Lock, null, Display);
+
+            // Start recording
+            mediaPlayer.Play(media);
+
+
+            // Waits for the processing to stop
+            try
             {
-
-
-                _player = mediaPlayer;
-                
-                // Listen to events
-                var processingCancellationTokenSource = new CancellationTokenSource();
-                mediaPlayer.Stopped += (s, e) => processingCancellationTokenSource.CancelAfter(1);
-
-                // Create new media
-                var media = new Media(_libvlc, new Uri(url));
-
-                media.AddOption(":no-audio");
-                // Set the size and format of the video here.
-                mediaPlayer.SetVideoFormat("RV32", _width, _height, Pitch);
-                mediaPlayer.SetVideoCallbacks(Lock, null, Display);
-
-                // Start recording
-                mediaPlayer.Play(media);
-                
-                
-
-                // Waits for the processing to stop
-                try
-                {
-                    await ProcessThumbnailsAsync(destination, processingCancellationTokenSource.Token);
-                }
-                catch (OperationCanceledException)
-                { }
-
-                
+                ProcessThumbnails(filePath ,processingCancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException ex)
+            {
+                Console.WriteLine(ex);
             }
         }
 
-        private async Task ProcessThumbnailsAsync(string destination, CancellationToken token)
+        private void ProcessThumbnails(string filePath, CancellationToken token)
         {
-            var frameNumber = 0;
+            var number = 0;
             var surface = SKSurface.Create(new SKImageInfo((int) _width, (int) _height));
             var canvas = surface.Canvas;
             while (!token.IsCancellationRequested)
             {
-                if (FilesToProcess.TryDequeue(out var bitmap))
+                if (_filesToProcess.TryDequeue(out var bitmap))
                 {
-                    canvas.DrawBitmap(bitmap, 0, 0); // Effectively crops the original bitmap to get only the visible area
-
-                    // var name = DateTime.Now.ToString("yyyy_MM_dd_T_HH_mm_ss");
-                    
-                    // Console.WriteLine($"Writing {name}.jpg");
-                    var fileName = Path.Combine(destination, $"snapshot.jpg");
-                    using (var outputImage = surface.Snapshot())
-                    using (var data = outputImage.Encode(SKEncodedImageFormat.Jpeg, 50))
-                    using (var outputFile = File.Open(fileName, FileMode.Create))
+                    if (!IsFrameSaved)
                     {
-                        data.SaveTo(outputFile);
-                        bitmap.Dispose(); 
-                        IsFrameSaved = true;
+                        canvas.DrawBitmap(bitmap, 0, 0);
+                        using (var outputImage = surface.Snapshot())
+                        using (var data = outputImage.Encode(SKEncodedImageFormat.Jpeg, 50))
+                        using (var outputFile = File.Open(filePath, FileMode.Create))
+                        {
+                            number++;
+                            data.SaveTo(outputFile);
+                            Console.WriteLine($"----------------------------{number}SAVED {outputFile}");
+                            bitmap.Dispose(); 
+                            IsFrameSaved = true;
+                        }
                     }
-
-                    frameNumber++;
-
-                   
                 }
-                else
-                {
-                    await Task.Delay(TimeSpan.Zero, token);
-                }
+                // else
+                // {
+                //     await Task.Delay(TimeSpan.FromMilliseconds(1), token);
+                // }
             }
         }
 
-        private  IntPtr Lock(IntPtr opaque, IntPtr planes)
+        private IntPtr Lock(IntPtr opaque, IntPtr planes)
         {
-            CurrentBitmap = new SKBitmap(new SKImageInfo((int)(Pitch / BytePerPixel), (int)Lines, SKColorType.Bgra8888));
-            Marshal.WriteIntPtr(planes, CurrentBitmap.GetPixels());
+            _currentBitmap = new SKBitmap(new SKImageInfo((int)(_pitch / BytePerPixel), (int)_lines, SKColorType.Bgra8888));
+            Marshal.WriteIntPtr(planes, _currentBitmap.GetPixels());
             return IntPtr.Zero;
         }
 
         private void Display(IntPtr opaque, IntPtr picture)
         {
-            if (FrameCounter % 100 == 0)
+            if (_frameCounter < 2)
             {
-                FilesToProcess.Enqueue(CurrentBitmap);
-                CurrentBitmap = null;
+                _filesToProcess.Enqueue(_currentBitmap);
+                _currentBitmap = null;
             }
             else
             {
-                CurrentBitmap.Dispose();
-                CurrentBitmap = null;
+                _currentBitmap.Dispose();
+                _currentBitmap = null;
             }
-            FrameCounter++;
-       
+            _frameCounter++;
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using SurveillanceCamera.Models;
 using SurveillanceCamera.Services;
 using Xamarin.Forms;
@@ -15,6 +16,10 @@ namespace SurveillanceCamera.ViewModels
     {
 
         private ObservableCollection<StreamModel> _streamList;
+        private bool _isRefreshing;
+
+        public ICommand RefreshingCommand { get; }
+
 
         public ObservableCollection<StreamModel> StreamList
         {
@@ -26,49 +31,94 @@ namespace SurveillanceCamera.ViewModels
             }
         }
 
-        private void LoadStreamModelList(string id)
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set
+            {
+                _isRefreshing = value;
+                OnPropertyChanged();
+            } }
+
+
+        public StreamViewModel()
+        {
+            StreamList = new ObservableCollection<StreamModel>();
+            
+            RefreshingCommand = new Command(() =>
+            {
+                HandleSelectedChannels(StreamList.Select(stream => stream as ChannelInfo));
+                IsRefreshing = false;
+            });
+        }
+                
+        private async Task<string> SaveFrame(string id)
         {
             var destination = $"/storage/emulated/0/Download/res/{id}/";
+            Directory.CreateDirectory(destination);
+
+            // var fileName = DateTime.Now.ToString("yyyy_MM_dd_T_HH_mm_ss_ms");
+            var fileName = "snapshot";
+            var filePath = Path.Combine(destination, $"{fileName}.jpg");
 
             var appSettings = AppSettingsLoader.AppSettings;
-        
-            var streamUrl = CamerasService.GetStreamUrl(id);
-        
-            new SnapshotSaver(appSettings.Width, appSettings.Height).SaveFrame(streamUrl, destination);
+            var snapshotSaver = new SnapshotSaver(appSettings.Width, appSettings.Height);
             
+            var streamUrl = CamerasService.GetStreamUrl(id);
+
+            await snapshotSaver.SaveFrame(streamUrl, destination, filePath);
+            
+            return filePath;
         }
 
-        public void SelectedChannelEventHandler(ObservableCollection<object> chan, NotifyCollectionChangedEventArgs args)
+        private StreamModel CreateStreamModel(ChannelInfo channelInfo, string filePath)
         {
-
-            var channels = chan.Select(ch => ((ChannelInfo) ch));
-            
-            foreach (var channelInfo in channels)
+            return new StreamModel
             {
-                LoadStreamModelList(channelInfo.Id);
-            }
+                Id = channelInfo.Id,
+                Image = ImageSource.FromFile(filePath),
+                Name = channelInfo.Name
+            };
+        }
 
-            var temp = new ObservableCollection<StreamModel>();
-            
-            foreach (var channelInfo in channels)
+        private async Task UpdateFrame(ChannelInfo channelInfo, ObservableCollection<StreamModel> updatedStreams)
+        {
+            var filePath = await SaveFrame(channelInfo.Id);
+            Console.WriteLine("---------------------------------------------------");
+            Console.WriteLine(filePath);
+            var streamModel = CreateStreamModel(channelInfo, filePath);
+            updatedStreams.Add(streamModel);
+        }
+        
+        private async Task UpdateFrames(IEnumerable<ChannelInfo> channels)
+        {
+            try
             {
-                var path = $"/storage/emulated/0/Download/res/{channelInfo.Id}/snapshot.jpg";
+                var updatedStreams = new ObservableCollection<StreamModel>();
+
+                var tasks = channels.Select(channel => UpdateFrame(channel, updatedStreams)).ToArray();
                 
-                while (!File.Exists(path))
-                {
-                    Console.WriteLine("DOESNT EXIST");
-                    Task.Delay(100);
-                }
+                Console.WriteLine("=====================================");
+            
+                await Task.WhenAll(tasks);
 
-                temp.Add(
-                    new StreamModel()
-                    {
-                        Id = channelInfo.Id,
-                        Image = ImageSource.FromFile(path)
-                    });
+                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++++++");
+
+                StreamList = new ObservableCollection<StreamModel>(updatedStreams.OrderBy(stream => stream.Name));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
             }
 
-            StreamList = temp;
+        }
+
+        public void HandleSelectedChannels(IEnumerable<ChannelInfo> channels)
+        {
+            Task.Run( async () =>
+            {
+                 await UpdateFrames(channels);
+            });
         }
     }
 }

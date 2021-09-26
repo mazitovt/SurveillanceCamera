@@ -6,10 +6,6 @@ namespace SurveillanceCamera.Models
     [Serializable]
     public class ChannelInfo
     {
-        public ChannelInfo()
-        {
-            
-        }
         
         [XmlAttribute("Id")]
         public string Id { get; set; }

@@ -3,7 +3,8 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             xmlns:local="clr-namespace:SurveillanceCamera.ViewModels"
             x:Class="SurveillanceCamera.Views.MainPage"
-            Title="Cameras">
+            Title="Cameras"
+            CurrentPageChanged="MainPage_OnCurrentPageChanged">
 <TabbedPage.BindingContext><local:MasterViewModel/></TabbedPage.BindingContext>
     <TabbedPage.Resources>
          <ResourceDictionary>
@@ -67,10 +68,16 @@
             </Style>
         </ResourceDictionary>
     </TabbedPage.Resources>
-<ContentPage x:Name="viewModel" Title="Инфо" BindingContext="{Binding ChannelInfoListViewModel}">
-       <ContentPage.Content>
-            <CollectionView ItemsSource="{Binding ChannelList}" 
-                            SelectionMode="Multiple"  SelectedItems="{Binding SelectedChannels, Mode=TwoWay}">
+    
+<ContentPage Title="Channels" 
+             BindingContext="{Binding ChannelInfoListViewModel}">
+    <ContentPage.Content>
+           <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                        Command="{Binding RefreshCommand}">
+           <CollectionView ItemsSource="{Binding ChannelList}" 
+                           SelectionMode="Multiple"  
+                           SelectedItems="{Binding SelectedChannels, Mode=TwoWay}"
+                           SelectionChangedCommand="{Binding SelectionChangedCommand}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
@@ -99,27 +106,77 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-        </ContentPage.Content>
-        
-    </ContentPage>
+               </RefreshView>
+       </ContentPage.Content>
+</ContentPage>
     
-<ContentPage Title="Камеры" BindingContext="{Binding StreamViewModel}">
+<ContentPage Title="Snapshots" BindingContext="{Binding StreamViewModel}">
    <ContentPage.Content>
-        <CollectionView ItemsSource="{Binding StreamList}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <StackLayout>
-                        <Frame Style="{StaticResource FrameCardViewStyle}">
-                            <Label Text="{Binding Id}"></Label>
-                        </Frame>
-                        <Frame Style="{StaticResource FrameCardViewStyle}">
-                            <Image Source="{Binding Image}"></Image>
-                        </Frame>
-                    </StackLayout>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+       <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshingCommand}">
+           <CollectionView ItemsSource="{Binding StreamList}">
+               <CollectionView.ItemTemplate>
+                   <DataTemplate>
+                      <StackLayout Padding="10">  
+                        <Frame BorderColor="LightGray" CornerRadius="15" HasShadow="True" Padding="5">  
+                            <Grid Padding="5" ColumnSpacing="0" RowSpacing="0" Margin="2">  
+                                <Grid.RowDefinitions>  
+                                    <RowDefinition Height="220"/>  
+                                    <RowDefinition Height="Auto"/>  
+                                    <RowDefinition Height="Auto"/>  
+                                </Grid.RowDefinitions> 
+                                <Image Grid.Row="0" Source="{Binding Image}" Aspect="AspectFit"/>  
+                                <Label Grid.Row="1" FontSize="Large" Text="{Binding Name}" TextColor="#14B7F8" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand"/>  
+                                <Label Grid.Row="2" Text="{Binding Id}" HorizontalTextAlignment="Center" VerticalOptions="CenterAndExpand" FontAttributes="Bold"/>
+                            </Grid>  
+                        </Frame>  
+                        </StackLayout>  
+                   </DataTemplate>
+               </CollectionView.ItemTemplate>
+           </CollectionView>
+       </RefreshView>
+       
+       <!-- <CollectionView ItemsSource="{Binding StreamList}"> -->
+       <!--     <CollectionView.ItemTemplate> -->
+       <!--         <DataTemplate> -->
+       <!--             <StackLayout Padding="10"> -->
+       <!--                 <ImageButton Source="icon_about.png"></ImageButton> -->
+       <!--                 <Image Source="{Binding Image}" HeightRequest="250" WidthRequest="640"></Image> -->
+       <!--                 <Label Text="{Binding Name}"></Label> -->
+       <!--             </StackLayout> -->
+       <!--         </DataTemplate> -->
+       <!--     </CollectionView.ItemTemplate> -->
+       <!-- </CollectionView> -->
+
+       <!--      <CollectionView ItemsSource="{Binding StreamList}"> -->
+   <!--          <CollectionView.ItemsLayout> -->
+   <!--              <GridItemsLayout Orientation="Vertical" HorizontalItemSpacing="20" -->
+   <!--                               Span="2" /> -->
+   <!--          </CollectionView.ItemsLayout> -->
+   <!--          <CollectionView.ItemTemplate> -->
+   <!--              <DataTemplate> -->
+   <!--                  <Grid > -->
+   <!--                      <Grid.RowDefinitions> -->
+   <!--                          <RowDefinition Height="150" /> -->
+   <!--                          <RowDefinition Height="2*" /> -->
+   <!--                      </Grid.RowDefinitions> -->
+   <!--                      <Grid.ColumnDefinitions> -->
+   <!--                          <ColumnDefinition Width="Auto" /> -->
+   <!--                          <ColumnDefinition Width="25" /> -->
+   <!--                      </Grid.ColumnDefinitions> -->
+   <!--                      <StackLayout> -->
+   <!--                      <Image Grid.Row="0"  Grid.ColumnSpan="2" -->
+   <!--                             Source="{Binding Image}" -->
+   <!--                             Aspect="AspectFill"/> -->
+   <!--                      <Label  -->
+   <!--                          Text="{Binding Id }" FontSize="18" -->
+   <!--                          FontAttributes="Bold" -->
+   <!--                          LineBreakMode="WordWrap" /> -->
+   <!--                      </StackLayout> -->
+   <!--                  </Grid> -->
+   <!--              </DataTemplate> -->
+   <!--          </CollectionView.ItemTemplate> -->
+   <!--      </CollectionView> -->
+   
 
     </ContentPage.Content>
 </ContentPage>

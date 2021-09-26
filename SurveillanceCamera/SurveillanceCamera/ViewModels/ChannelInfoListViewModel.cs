@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using SurveillanceCamera.Models;
 using SurveillanceCamera.Services;
@@ -13,15 +10,27 @@ namespace SurveillanceCamera.ViewModels
 {
     public class ChannelInfoListViewModel : BaseViewModel
     {
-        
-        public delegate void Handler(ObservableCollection<object> channels, NotifyCollectionChangedEventArgs args);
+        public delegate void Handler(ObservableCollection<ChannelInfo> channels);
         public event Handler SelectionChanged;
         
-        
         private ObservableCollection<ChannelInfo> _channelList;
+        private bool _isRefreshing;
+        private bool _isSelectionChanged;
+        
+        public Command SelectionChangedCommand { get; }
+        public Command RefreshCommand { get; }
 
-
-        public ObservableCollection<object> SelectedChannels { get; set; } = new ObservableCollection<object>();
+        public bool IsRefreshing
+        {
+            get => _isRefreshing; 
+            set
+            {
+                _isRefreshing = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public ObservableCollection<object> SelectedChannels { get; set; } = new();
 
         public ObservableCollection<ChannelInfo> ChannelList
         {
@@ -29,6 +38,7 @@ namespace SurveillanceCamera.ViewModels
             set
             {
                 _channelList = value;
+                _channelList = new ObservableCollection<ChannelInfo>(_channelList.OrderBy(channel => channel.Name));
                 OnPropertyChanged();
             }
         }
@@ -37,11 +47,18 @@ namespace SurveillanceCamera.ViewModels
         {
             LoadChannelInfoList();
 
-            SelectedChannels.CollectionChanged += (sender, args) =>
+            SelectionChangedCommand = new Command(() =>
             {
-                SelectionChanged?.Invoke((ObservableCollection<object>)sender, args);
-            };
+                _isSelectionChanged = true;
+            });
 
+            RefreshCommand = new Command(() =>
+            {
+                LoadChannelInfoList();
+                SelectedChannels.Clear();
+                _isSelectionChanged = true;
+                IsRefreshing = false;
+            });
         }
 
         private void LoadChannelInfoList()
@@ -52,6 +69,13 @@ namespace SurveillanceCamera.ViewModels
                 ChannelList = new CustomSerializationService().Deserialize(xmlResult);
             });
         }
-        
+
+
+        public void CheckSelectedChannels()
+        {
+            if (!_isSelectionChanged) return;
+            _isSelectionChanged = false;
+            SelectionChanged?.Invoke(new ObservableCollection<ChannelInfo>(SelectedChannels.Select(ch => (ChannelInfo) ch)));
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.Views;
@@ -7,6 +8,7 @@ using Android.Widget;
 using Android.OS;
 using LibVLCSharp.Forms.Shared;
 using Xamarin.Essentials;
+using Xamarin.Forms.Platform.Android;
 
 namespace SurveillanceCamera.Android
 {
@@ -27,6 +29,9 @@ namespace SurveillanceCamera.Android
             LibVLCSharpFormsRenderer.Init();
             
             Permissions.RequestAsync<Permissions.StorageWrite>();
+            
+            
+            
         }
     }
 }
