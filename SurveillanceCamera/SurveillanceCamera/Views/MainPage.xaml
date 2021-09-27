@@ -18,35 +18,13 @@
                 <Setter Property="FontSize" Value="14" />
             </Style>
 
-            <Style x:Key="imageLableStackLayout" TargetType="StackLayout">
-                <Setter Property="Orientation" Value="Horizontal" />
-            </Style>
-
-            <Style x:Key="detailsStackLayout" TargetType="StackLayout">
+             <Style x:Key="detailsStackLayout" TargetType="StackLayout">
                 <Setter Property="HorizontalOptions" Value="FillAndExpand" />
                 <Setter Property="VerticalOptions" Value="FillAndExpand" />
                 <Setter Property="Spacing" Value="2" />
             </Style>
-
-            <Style x:Key="imageStyle" TargetType="Image">
-                <Setter Property="WidthRequest" Value="8" />
-                <Setter Property="HeightRequest" Value="8" />
-            </Style>
-
-            <Style x:Key="profileImageStyle" TargetType="Image">
-                <Setter Property="WidthRequest" Value="80" />
-                <Setter Property="HeightRequest" Value="60" />
-                <Setter Property="Aspect" Value="AspectFit" />
-            </Style>
-
-            <Style x:Key="profileImageFrameStyle" TargetType="Frame">
-                <Setter Property="CornerRadius" Value="5" />
-                <Setter Property="Margin" Value="0" />
-                <Setter Property="Padding" Value="0" />
-                <Setter Property="IsClippedToBounds" Value="True" />
-            </Style>
            
-            <Style x:Key="FrameCardViewStyle" TargetType="Frame">
+             <Style x:Key="FrameCardViewStyle" TargetType="Frame">
                 <Setter Property="CornerRadius" Value="5" />
                 <Setter Property="Margin" Value="5" />
                 <Setter Property="Padding" Value="5" />
@@ -55,13 +33,7 @@
                 <Setter Property="BorderColor" Value="LightGray" />
                 <Setter Property="HasShadow" Value="True" />
             </Style>
-
-            <Style x:Key="itemsCardViewStackLayoutStyle" TargetType="StackLayout">
-                <Setter Property="Margin" Value="5" />
-                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
-                <Setter Property="Spacing" Value="8" />
-            </Style>
-
+             
             <Style x:Key="itemsInsideCardViewStackLayoutStyle" TargetType="StackLayout">
                 <Setter Property="Margin" Value="5" />
                 <Setter Property="Orientation" Value="Horizontal" />
@@ -97,8 +69,8 @@
                                         <Label Style="{StaticResource LabelStyle}">
                                             <Label.FormattedText>
                                                 <FormattedString>
-                                                    <Span Text="Not working: "/>
-                                                    <Span Text="{Binding IsDisabled}"/>
+                                                    <Span Text="Sound on: "/>
+                                                    <Span Text="{Binding IsSoundOn}"/>
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>
@@ -143,50 +115,6 @@
                </CollectionView.ItemTemplate>
            </CollectionView>
        </RefreshView>
-       
-       <!-- <CollectionView ItemsSource="{Binding StreamList}"> -->
-       <!--     <CollectionView.ItemTemplate> -->
-       <!--         <DataTemplate> -->
-       <!--             <StackLayout Padding="10"> -->
-       <!--                 <ImageButton Source="icon_about.png"></ImageButton> -->
-       <!--                 <Image Source="{Binding Image}" HeightRequest="250" WidthRequest="640"></Image> -->
-       <!--                 <Label Text="{Binding Name}"></Label> -->
-       <!--             </StackLayout> -->
-       <!--         </DataTemplate> -->
-       <!--     </CollectionView.ItemTemplate> -->
-       <!-- </CollectionView> -->
-
-       <!--      <CollectionView ItemsSource="{Binding StreamList}"> -->
-   <!--          <CollectionView.ItemsLayout> -->
-   <!--              <GridItemsLayout Orientation="Vertical" HorizontalItemSpacing="20" -->
-   <!--                               Span="2" /> -->
-   <!--          </CollectionView.ItemsLayout> -->
-   <!--          <CollectionView.ItemTemplate> -->
-   <!--              <DataTemplate> -->
-   <!--                  <Grid > -->
-   <!--                      <Grid.RowDefinitions> -->
-   <!--                          <RowDefinition Height="150" /> -->
-   <!--                          <RowDefinition Height="2*" /> -->
-   <!--                      </Grid.RowDefinitions> -->
-   <!--                      <Grid.ColumnDefinitions> -->
-   <!--                          <ColumnDefinition Width="Auto" /> -->
-   <!--                          <ColumnDefinition Width="25" /> -->
-   <!--                      </Grid.ColumnDefinitions> -->
-   <!--                      <StackLayout> -->
-   <!--                      <Image Grid.Row="0"  Grid.ColumnSpan="2" -->
-   <!--                             Source="{Binding Image}" -->
-   <!--                             Aspect="AspectFill"/> -->
-   <!--                      <Label  -->
-   <!--                          Text="{Binding Id }" FontSize="18" -->
-   <!--                          FontAttributes="Bold" -->
-   <!--                          LineBreakMode="WordWrap" /> -->
-   <!--                      </StackLayout> -->
-   <!--                  </Grid> -->
-   <!--              </DataTemplate> -->
-   <!--          </CollectionView.ItemTemplate> -->
-   <!--      </CollectionView> -->
-   
-
-    </ContentPage.Content>
+   </ContentPage.Content>
 </ContentPage>
 </TabbedPage>

@@ -6,7 +6,7 @@ namespace SurveillanceCamera.Models
     [Serializable]
     public class ChannelInfo
     {
-        
+
         [XmlAttribute("Id")]
         public string Id { get; set; }
         
@@ -21,6 +21,10 @@ namespace SurveillanceCamera.Models
         
         public string RootDirName { get; set; }
 
+        public ChannelInfo()
+        {
+            
+        }
         public override string ToString()
         {
             return $"{Id}, {Name}, disabled: {IsDisabled}, sound: {IsSoundOn}, root: {RootDirName} ";

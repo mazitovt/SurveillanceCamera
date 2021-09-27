@@ -33,11 +33,9 @@ namespace SurveillanceCamera.Services
                 return;
             }
 
-            using (var streamReader = new StreamReader(stream))
-            {
-                var jsonSettings = streamReader.ReadToEnd();
-                _appSettings = JsonConvert.DeserializeObject<AppSettings>(jsonSettings);
-            }
+            using var streamReader = new StreamReader(stream);
+            var jsonSettings = streamReader.ReadToEnd();
+            _appSettings = JsonConvert.DeserializeObject<AppSettings>(jsonSettings);
         }
     }
 }

@@ -3,14 +3,12 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using LibVLCSharp.Shared;
 using SkiaSharp;
 
+namespace SurveillanceCamera.Services.SnapshotSaver{
 
-namespace SurveillanceCamera.Services{
-
-    public class SnapshotSaver : ISnapshotSaver
+    public class CustomSnapshotSaver : ISnapshotSaver
     {
 
         private bool _isFrameSaved = false;
@@ -80,39 +78,41 @@ namespace SurveillanceCamera.Services{
         {
             Initialize(width, height);
             
-            using var mediaPlayer = new MediaPlayer(_libvlc);
-            _player = mediaPlayer;
+            using (var mediaPlayer = new MediaPlayer(_libvlc))
+            {
                 
-            // Listen to events
-            var processingCancellationTokenSource = new CancellationTokenSource();
-            mediaPlayer.Stopped += (s, e) => processingCancellationTokenSource.CancelAfter(1);
+                _player = mediaPlayer;
+                    
+                // Listen to events
+                var processingCancellationTokenSource = new CancellationTokenSource();
+                mediaPlayer.Stopped += (s, e) => processingCancellationTokenSource.CancelAfter(1);
 
-            // Create new media
-            var media = new Media(_libvlc, new Uri(url));
+                // Create new media
+                var media = new Media(_libvlc, new Uri(url));
 
-            media.AddOption(":no-audio");
-            // Set the size and format of the video here.
-            mediaPlayer.SetVideoFormat("RV32", _width, _height, _pitch);
-            mediaPlayer.SetVideoCallbacks(Lock, null, Display);
+                media.AddOption(":no-audio");
+                // Set the size and format of the video here.
+                mediaPlayer.SetVideoFormat("RV32", _width, _height, _pitch);
+                mediaPlayer.SetVideoCallbacks(Lock, null, Display);
 
-            // Start recording
-            mediaPlayer.Play(media);
+                // Start recording
+                mediaPlayer.Play(media);
 
 
-            // Waits for the processing to stop
-            try
-            {
-                ProcessThumbnails(filePath ,processingCancellationTokenSource.Token);
-            }
-            catch (OperationCanceledException ex)
-            {
-                Console.WriteLine(ex);
+                // Waits for the processing to stop
+                try
+                {
+                    ProcessThumbnails(filePath ,processingCancellationTokenSource.Token);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
         }
 
         private void ProcessThumbnails(string filePath, CancellationToken token)
         {
-            var number = 0;
             var surface = SKSurface.Create(new SKImageInfo((int) _width, (int) _height));
             var canvas = surface.Canvas;
             while (!token.IsCancellationRequested)
@@ -125,9 +125,7 @@ namespace SurveillanceCamera.Services{
                     using (var data = outputImage.Encode(SKEncodedImageFormat.Jpeg, 50))
                     using (var outputFile = File.Open(filePath, FileMode.Create))
                     {
-                        number++;
                         data.SaveTo(outputFile);
-                        Console.WriteLine($"----------------------------{number}SAVED {outputFile}");
                         bitmap.Dispose(); 
                         IsFrameSaved = true;
                     }
@@ -151,7 +149,7 @@ namespace SurveillanceCamera.Services{
             }
             else
             {
-                _currentBitmap.Dispose();
+                _currentBitmap?.Dispose();
                 _currentBitmap = null;
             }
             _frameCounter++;

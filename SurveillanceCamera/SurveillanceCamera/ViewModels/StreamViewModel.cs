@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using SurveillanceCamera.Models;
 using SurveillanceCamera.Services;
+using SurveillanceCamera.Services.CameraService;
+using SurveillanceCamera.Services.SnapshotSaver;
 using Xamarin.Forms;
 
 
@@ -16,6 +18,9 @@ namespace SurveillanceCamera.ViewModels
     public class StreamViewModel : BaseViewModel
     {
 
+        private ICameraService _cameraService;
+        private ISnapshotSaver _snapshotSaver;
+        
         private ObservableCollection<StreamModel> _streamList;
         private bool _isRefreshing;
 
@@ -42,8 +47,11 @@ namespace SurveillanceCamera.ViewModels
             } }
 
 
-        public StreamViewModel()
+        public StreamViewModel(ICameraService cameraService, ISnapshotSaver snapshotSaver)
         {
+            _cameraService = cameraService;
+            _snapshotSaver = snapshotSaver;
+            
             StreamList = new ObservableCollection<StreamModel>();
             
             RefreshingCommand = new Command(() =>
@@ -55,24 +63,25 @@ namespace SurveillanceCamera.ViewModels
                 
         private async Task<string> SaveFrame(string id)
         {
-            var destination = $"/storage/emulated/0/Download/res/{id}/";
+            // var destination = $"/storage/emulated/0/Download/res/{id}/";
+            var localAppDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var destination = Path.Combine(localAppDataFolder, "snapshots", id);
             Directory.CreateDirectory(destination);
 
             // var fileName = DateTime.Now.ToString("yyyy_MM_dd_T_HH_mm_ss_ms");
             var fileName = "snapshot";
             var filePath = Path.Combine(destination, $"{fileName}.jpg");
 
-            var snapshotSaver = new SnapshotSaver();
             var appSettings = AppSettingsLoader.AppSettings;
-            var streamUrl = CamerasService.GetStreamUrl(id);
+            var streamUrl = _cameraService.GetStreamUrl(id);
 
             await Task.Run( () =>
-                snapshotSaver.SaveFrame(appSettings.Width, appSettings.Height, streamUrl, destination, filePath));
+                new CustomSnapshotSaver().SaveFrame(appSettings.Width, appSettings.Height, streamUrl, destination, filePath));
             
             return filePath;
         }
 
-        private StreamModel CreateStreamModel(ChannelInfo channelInfo, string filePath)
+        private static StreamModel CreateStreamModel(ChannelInfo channelInfo, string filePath)
         {
             return new StreamModel
             {
@@ -85,7 +94,6 @@ namespace SurveillanceCamera.ViewModels
         private async Task UpdateFrame(ChannelInfo channelInfo, ConcurrentBag<StreamModel> updatedStreams)
         {
             var filePath = await SaveFrame(channelInfo.Id);
-            Console.WriteLine("---------------------------------------------------");
             Console.WriteLine(filePath);
             var streamModel = CreateStreamModel(channelInfo, filePath);
             updatedStreams.Add(streamModel);
@@ -97,15 +105,9 @@ namespace SurveillanceCamera.ViewModels
             {
                 var bag = new ConcurrentBag<StreamModel>();
                 
-                // var updatedStreams = new ObservableCollection<StreamModel>();
-
                 var tasks = channels.Select(channel => UpdateFrame(channel, bag)).ToArray();
-                
-                Console.WriteLine("=====================================");
-            
-                await Task.WhenAll(tasks);
 
-                Console.WriteLine("+++++++++++++++++++++++++++++++++++++++++++");
+                await Task.WhenAll(tasks);
 
                 StreamList = new ObservableCollection<StreamModel>(bag.OrderBy(stream => stream.Name));
             }

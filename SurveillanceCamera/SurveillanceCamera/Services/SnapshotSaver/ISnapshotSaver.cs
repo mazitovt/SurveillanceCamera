@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace SurveillanceCamera.Services
+﻿namespace SurveillanceCamera.Services.SnapshotSaver
 {
     public interface ISnapshotSaver
     {

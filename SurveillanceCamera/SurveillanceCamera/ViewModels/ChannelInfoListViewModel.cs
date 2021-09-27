@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SurveillanceCamera.Models;
 using SurveillanceCamera.Services;
+using SurveillanceCamera.Services.CameraService;
 using SurveillanceCamera.Services.Serialization;
 using Xamarin.Forms;
 
@@ -12,7 +13,9 @@ namespace SurveillanceCamera.ViewModels
     {
         public delegate void Handler(ObservableCollection<ChannelInfo> channels);
         public event Handler SelectionChanged;
-        
+
+        private ICameraService _cameraService;
+        private ISerializationService _serializationService;
         private ObservableCollection<ChannelInfo> _channelList;
         private bool _isRefreshing;
         private bool _isSelectionChanged;
@@ -43,8 +46,11 @@ namespace SurveillanceCamera.ViewModels
             }
         }
 
-        public ChannelInfoListViewModel()
+        public ChannelInfoListViewModel(ICameraService cameraService, ISerializationService serializationService)
         {
+            _cameraService = cameraService;
+            _serializationService = serializationService;
+            
             LoadChannelInfoList();
 
             SelectionChangedCommand = new Command(() =>
@@ -65,8 +71,8 @@ namespace SurveillanceCamera.ViewModels
         {
             Task.Run(async () =>
             {
-                var xmlResult = await new CamerasService().GetChannelInfo();
-                ChannelList = new CustomSerializationService().Deserialize(xmlResult);
+                var xmlResult = await _cameraService.GetChannelInfo();
+                ChannelList = _serializationService.Deserialize(xmlResult);
             });
         }
 
