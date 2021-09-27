@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns ="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:local="clr-namespace:SurveillanceCamera.ViewModels"
+            x:Class="SurveillanceCamera.Views.MainPage"
+            Title="Cameras"
+            CurrentPageChanged="MainPage_OnCurrentPageChanged">
+<TabbedPage.BindingContext><local:MasterViewModel/></TabbedPage.BindingContext>
+    <TabbedPage.Resources>
+         <ResourceDictionary>
+            <Style x:Key="NameLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+
+            <Style x:Key="LabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+
+             <Style x:Key="detailsStackLayout" TargetType="StackLayout">
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="VerticalOptions" Value="FillAndExpand" />
+                <Setter Property="Spacing" Value="2" />
+            </Style>
+           
+             <Style x:Key="FrameCardViewStyle" TargetType="Frame">
+                <Setter Property="CornerRadius" Value="5" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Padding" Value="5" />
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="OutlineColor" Value="LightGray" />
+                <Setter Property="BorderColor" Value="LightGray" />
+                <Setter Property="HasShadow" Value="True" />
+            </Style>
+             
+            <Style x:Key="itemsInsideCardViewStackLayoutStyle" TargetType="StackLayout">
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="Spacing" Value="8" />
+            </Style>
+        </ResourceDictionary>
+    </TabbedPage.Resources>
+    
+<ContentPage Title="Channels" 
+             BindingContext="{Binding ChannelInfoListViewModel}">
+    <ContentPage.Content>
+           <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                        Command="{Binding RefreshCommand}">
+           <CollectionView ItemsSource="{Binding ChannelList}" 
+                           SelectionMode="Multiple"  
+                           SelectedItems="{Binding SelectedChannels, Mode=TwoWay}"
+                           SelectionChangedCommand="{Binding SelectionChangedCommand}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Spacing="8" HorizontalOptions="EndAndExpand">
+                            <Frame Style="{StaticResource FrameCardViewStyle}">
+                                <StackLayout Style="{StaticResource itemsInsideCardViewStackLayoutStyle}">
+                                    <StackLayout Style="{StaticResource detailsStackLayout}">
+                                        <Label Text="{Binding Name}" Style="{StaticResource NameLabel}" />
+                                        <Label Style="{StaticResource LabelStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Id: "/>
+                                                    <Span Text="{Binding Id}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Style="{StaticResource LabelStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Sound on: "/>
+                                                    <Span Text="{Binding IsSoundOn}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Style="{StaticResource LabelStyle}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="Root directory: "/>
+                                                    <Span Text="{Binding RootDirName}"/>
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </StackLayout>
+                                </StackLayout>
+                            </Frame>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+               </RefreshView>
+       </ContentPage.Content>
+</ContentPage>
+    
+<ContentPage Title="Snapshots" BindingContext="{Binding StreamViewModel}">
+   <ContentPage.Content>
+       <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshingCommand}">
+           <CollectionView ItemsSource="{Binding StreamList}">
+               <CollectionView.ItemTemplate>
+                   <DataTemplate>
+                      <StackLayout Padding="10">  
+                        <Frame BorderColor="LightGray" CornerRadius="15" HasShadow="True" Padding="5">  
+                            <Grid Padding="5" ColumnSpacing="0" RowSpacing="0" Margin="2">  
+                                <Grid.RowDefinitions>  
+                                    <RowDefinition Height="220"/>  
+                                    <RowDefinition Height="Auto"/>  
+                                </Grid.RowDefinitions> 
+                                <Image Grid.Row="0" Source="{Binding Image}" Aspect="AspectFit"/>  
+                                <Label Grid.Row="1" Text="{Binding Name}"  Style="{StaticResource NameLabel}"/>  
+                            </Grid>  
+                        </Frame>  
+                        </StackLayout>  
+                   </DataTemplate>
+               </CollectionView.ItemTemplate>
+           </CollectionView>
+       </RefreshView>
+   </ContentPage.Content>
+</ContentPage>
+</TabbedPage>

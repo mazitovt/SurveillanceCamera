@@ -1,4 +1,6 @@
-﻿### Xamarin application for displaying data from surveillance cameras
+Ссылка на демонстрацию работы: [https://disk.yandex.ru/i/V_7YmdeGG8797g](https://disk.yandex.ru/i/V_7YmdeGG8797g)
+
+### Xamarin application for displaying data from surveillance cameras
 
 Создать приложение Xamarin.Forms для Андроид или iOS.
 Приложение необходимо написать на Xamarin.Forms:
@@ -11,8 +13,7 @@
 **На первой вкладке:**
 
 Получить конфигурацию камер с демо-сервера Macroscop по http по адресу
-http://demo.macroscop.com/configex?login=root. Достать из конфигурации все камеры и вывести их в виде списка в приложении (в
-списке должно отображаться:
+http://demo.macroscop.com/configex?login=root. Достать из конфигурации все камеры и вывести их в виде списка в приложении. В списке должно отображаться:
 * чекбокс (на чекбокс необходимо написать Renderer, чтобы он выглядел как-
   нибудь необычно)
 * Имя камеры (Name)

@@ -1,10 +1,14 @@
 ﻿using System;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using LibVLCSharp.Forms.Shared;
+using Xamarin.Essentials;
+using Xamarin.Forms.Platform.Android;
 
 namespace SurveillanceCamera.Android
 {
@@ -18,8 +22,16 @@ namespace SurveillanceCamera.Android
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
+            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+            
+            LibVLCSharpFormsRenderer.Init();
+            
+            Permissions.RequestAsync<Permissions.StorageWrite>();
+            
+            
+            
         }
     }
 }
