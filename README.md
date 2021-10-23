@@ -1,3 +1,4 @@
+Решение тестового задания
 Ссылка на демонстрацию работы: [https://disk.yandex.ru/i/V_7YmdeGG8797g](https://disk.yandex.ru/i/V_7YmdeGG8797g)
 
 ### Xamarin application for displaying data from surveillance cameras
